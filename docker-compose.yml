@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -u
+
+echo "JARVIS Doctor Check"
+echo "==================="
+
+check() {
+  name="$1"; cmd="$2"
+  if command -v "$cmd" >/dev/null 2>&1; then
+    echo "[OK] $name: $(command -v "$cmd")"
+  else
+    echo "[MISSING] $name ($cmd)"
+  fi
+}
+
+check "Git" git
+check "Python" python3
+check "Node" node
+check "npm" npm
+check "FFmpeg" ffmpeg
+check "Ollama" ollama
+check "Cloudflared optional" cloudflared
+
+[ -f .env ] && echo "[OK] .env exists" || echo "[MISSING] .env"
+[ -d .venv ] && echo "[OK] Python venv exists" || echo "[WARN] .venv not found"
+
+for port in 3000 3741 8741 11434; do
+  if lsof -i :$port >/dev/null 2>&1; then
+    echo "[INFO] Port $port is in use"
+  else
+    echo "[OK] Port $port is free"
+  fi
+done
+
+echo "Done."
